@@ -1,0 +1,58 @@
+body {
+  background:#111;
+  color:#eee;
+  font-family:sans-serif;
+}
+
+.title {
+  text-align:center;
+  margin-top:20px;
+}
+
+canvas {
+  background:#000;
+  border:1px solid #555;
+  image-rendering:pixelated;
+  display:block;
+  margin:20px auto;
+}
+
+#info {
+  text-align:center;
+  margin-top:10px;
+  font-size:18px;
+}
+
+button {
+  margin:5px;
+  padding:6px 12px;
+  background:#333;
+  color:#fff;
+  border:1px solid #666;
+  cursor:pointer;
+}
+button:hover {
+  background:#444;
+}
+
+.controls {
+  text-align:center;
+}
+
+#menu {
+  position:absolute;
+  background:#222;
+  border:1px solid #555;
+  padding:8px;
+  display:none;
+  color:#fff;
+  z-index:10;
+  width:160px;
+}
+#menu div {
+  padding:6px;
+  cursor:pointer;
+}
+#menu div:hover {
+  background:#444;
+}
