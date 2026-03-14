@@ -6,35 +6,42 @@
 <style>
   body {
     margin: 0;
-    background: #050510;
-    color: #eee;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: #eee;
+
+    /* Реалистичная туманность */
+    background: url('assets/nebula.jpg') no-repeat center center fixed;
+    background-size: cover;
   }
 
-  /* Canvas фон */
-  #bg {
+  /* Затемняющий слой для читабельности */
+  .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    background: rgba(5, 5, 20, 0.55);
+    backdrop-filter: blur(1px);
+    z-index: 0;
   }
 
   header {
+    position: relative;
+    z-index: 1;
     padding: 40px 20px;
     text-align: center;
     font-size: 36px;
     font-weight: bold;
     letter-spacing: 1px;
-    text-shadow: 0 0 15px rgba(150,0,255,0.7);
+    text-shadow: 0 0 18px rgba(150,0,255,0.8);
   }
 
   .center {
+    position: relative;
+    z-index: 1;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -63,16 +70,18 @@
   }
 
   footer {
+    position: relative;
+    z-index: 1;
     text-align: center;
     padding: 15px;
     font-size: 14px;
-    opacity: 0.6;
+    opacity: 0.7;
   }
 </style>
 </head>
 <body>
 
-<canvas id="bg"></canvas>
+<div class="overlay"></div>
 
 <header>Галактическая карта</header>
 
@@ -82,66 +91,6 @@
 </div>
 
 <footer>© Халяпин, 2026</footer>
-
-<!-- Анимированная туманность -->
-<script>
-const c = document.getElementById('bg');
-const ctx = c.getContext('2d');
-
-function resize() {
-  c.width = innerWidth;
-  c.height = innerHeight;
-}
-resize();
-addEventListener('resize', resize);
-
-// параметры туманности
-const blobs = [
-  { x: 0.3, y: 0.4, r: 350, color: 'rgba(150,0,255,0.12)', dx: 0.0003, dy: -0.0002 },
-  { x: 0.7, y: 0.6, r: 420, color: 'rgba(0,150,255,0.10)', dx: -0.00025, dy: 0.00015 },
-  { x: 0.5, y: 0.5, r: 500, color: 'rgba(255,0,150,0.08)', dx: 0.00015, dy: 0.0001 }
-];
-
-function draw() {
-  ctx.clearRect(0, 0, c.width, c.height);
-
-  // фон космоса
-  ctx.fillStyle = '#050510';
-  ctx.fillRect(0, 0, c.width, c.height);
-
-  // туманности
-  for (let b of blobs) {
-    const px = b.x * c.width;
-    const py = b.y * c.height;
-
-    ctx.beginPath();
-    ctx.fillStyle = b.color;
-    ctx.arc(px, py, b.r, 0, Math.PI * 2);
-    ctx.fill();
-
-    // лёгкое движение
-    b.x += b.dx;
-    b.y += b.dy;
-
-    if (b.x < 0.1 || b.x > 0.9) b.dx *= -1;
-    if (b.y < 0.1 || b.y > 0.9) b.dy *= -1;
-  }
-
-  // звёзды
-  for (let i = 0; i < 80; i++) {
-    const x = Math.random() * c.width;
-    const y = Math.random() * c.height;
-    const s = Math.random() * 1.2;
-
-    ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.8})`;
-    ctx.fillRect(x, y, s, s);
-  }
-
-  requestAnimationFrame(draw);
-}
-
-draw();
-</script>
 
 </body>
 </html>
