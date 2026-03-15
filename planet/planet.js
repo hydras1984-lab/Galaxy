@@ -4,7 +4,12 @@ const ctx = canvas.getContext("2d");
 const HEX_SIZE = 25;
 const HEX_H = HEX_SIZE * Math.sqrt(3);
 
-// Цвета биомов
+let planetCells = [];
+let rows = {};
+let maxLength = 0;
+
+let hoveredCell = null;
+
 const biomeColors = {
     ocean: "#4a90e2",
     plain: "#7ed321",
@@ -12,23 +17,20 @@ const biomeColors = {
     desert: "#f5a623"
 };
 
-// Загружаем JSON
 async function loadPlanet() {
     const urlParams = new URLSearchParams(window.location.search);
     const planetId = urlParams.get("planet") || 1;
 
     const response = await fetch(`../planets/planet_${planetId}.json`);
-    const cells = await response.json();
+    planetCells = await response.json();
 
-    renderPlanet(cells);
+    renderPlanet();
 }
 
-// Центрирование + смещение odd-r
 function hexToPixel(col, row, rowLength, maxLength) {
     const baseX = col * HEX_SIZE * 1.5;
     const baseY = row * HEX_H + (row % 2 ? HEX_H / 2 : 0);
 
-    // Центрирование ряда
     const shift = ((maxLength - rowLength) * HEX_SIZE * 1.5) / 2;
 
     return {
@@ -37,8 +39,7 @@ function hexToPixel(col, row, rowLength, maxLength) {
     };
 }
 
-// Рисуем гекс по координатам
-function drawHexAt(x, y, color) {
+function drawHexAt(x, y, color, stroke = "#222", lineWidth = 1) {
     ctx.beginPath();
     ctx.moveTo(x + HEX_SIZE, y);
     ctx.lineTo(x + HEX_SIZE / 2, y + HEX_H / 2);
@@ -50,25 +51,23 @@ function drawHexAt(x, y, color) {
 
     ctx.fillStyle = color;
     ctx.fill();
-    ctx.strokeStyle = "#222";
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = stroke;
     ctx.stroke();
 }
 
-// Основной рендер
-function renderPlanet(cells) {
+function renderPlanet() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Группируем клетки по рядам
-    const rows = {};
-    for (const cell of cells) {
+    rows = {};
+    for (const cell of planetCells) {
         if (!rows[cell.row]) rows[cell.row] = [];
         rows[cell.row].push(cell);
     }
 
-    // Находим максимальную длину ряда
-    const maxLength = Math.max(...Object.values(rows).map(r => r.length));
+    maxLength = Math.max(...Object.values(rows).map(r => r.length));
 
-    // Рисуем ряды
     for (const row of Object.keys(rows)) {
         const rowCells = rows[row];
         const rowLength = rowCells.length;
@@ -76,9 +75,67 @@ function renderPlanet(cells) {
         for (const cell of rowCells) {
             const { x, y } = hexToPixel(cell.col, cell.row, rowLength, maxLength);
             const color = biomeColors[cell.biome] || "#ffffff";
-            drawHexAt(x, y, color);
+
+            const isHovered = hoveredCell &&
+                              hoveredCell.row === cell.row &&
+                              hoveredCell.col === cell.col;
+
+            if (isHovered) {
+                drawHexAt(x, y, color, "#ffffff", 3);
+            } else {
+                drawHexAt(x, y, color);
+            }
         }
     }
 }
+
+function pointInHex(px, py, hx, hy) {
+    const dx = Math.abs(px - hx) / HEX_SIZE;
+    const dy = Math.abs(py - hy) / HEX_H;
+
+    return dy <= 0.5 && dx + dy <= 1;
+}
+
+function findCellAt(x, y) {
+    for (const row of Object.keys(rows)) {
+        const rowCells = rows[row];
+        const rowLength = rowCells.length;
+
+        for (const cell of rowCells) {
+            const pos = hexToPixel(cell.col, cell.row, rowLength, maxLength);
+
+            if (pointInHex(x, y, pos.x, pos.y)) {
+                return cell;
+            }
+        }
+    }
+    return null;
+}
+
+canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const cell = findCellAt(x, y);
+
+    if (cell !== hoveredCell) {
+        hoveredCell = cell;
+        renderPlanet();
+
+        const info = document.getElementById("info");
+        if (cell) {
+            info.textContent = `Клетка: row=${cell.row}, col=${cell.col}, биом=${cell.biome}`;
+        } else {
+            info.textContent = "Клетка: —";
+        }
+    }
+});
+
+canvas.addEventListener("mouseleave", () => {
+    hoveredCell = null;
+    renderPlanet();
+    document.getElementById("info").textContent = "Клетка: —";
+});
 
 loadPlanet();
