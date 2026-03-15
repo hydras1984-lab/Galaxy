@@ -5,14 +5,14 @@ const ctx = canvas.getContext("2d");
 const HEX_SIZE = 25;
 
 // Геометрия pointy‑top
-const HEX_H = HEX_SIZE * 2;               // высота
+const HEX_H = HEX_SIZE * 2;               // высота (от вершины до вершины)
 const HEX_W = Math.sqrt(3) * HEX_SIZE;    // ширина
 
-// Шаги между гексами
-const SPACING = 1.15; // увеличенный зазор между сотами
+// Шаги между гексами (увеличенные для зазора)
+const SPACING = 1.5;
 
-const STEP_X = HEX_W * 0.75 * SPACING;
-const STEP_Y = HEX_H * 0.5 * SPACING;
+const STEP_X = HEX_W * 0.75 * SPACING;    // горизонтальный шаг
+const STEP_Y = HEX_H * 0.5 * SPACING;     // вертикальный шаг
 
 let planetCells = [];
 let rows = {};
@@ -48,7 +48,7 @@ function hexToPixel(col, row, rowLength, maxLength) {
     }
 
     // центрирование ряда
-    const shift = ((maxLength - rowLength) * STEP_X * SPACING) / 2;
+    const shift = ((maxLength - rowLength) * STEP_X) / 2;
     x += shift;
 
     // общий отступ
