@@ -1,8 +1,9 @@
 const canvas = document.getElementById("planetCanvas");
 const ctx = canvas.getContext("2d");
 
-const HEX_W = HEX_SIZE * 2;
-const HEX_H = HEX_SIZE * Math.sqrt(3);
+const HEX_SIZE = 25;
+const HEX_H = HEX_SIZE * Math.sqrt(3); // полная высота flat‑top
+const HEX_W = HEX_SIZE * 2;            // полная ширина
 
 let planetCells = [];
 let rows = {};
@@ -27,26 +28,42 @@ async function loadPlanet() {
     renderPlanet();
 }
 
+// flat‑top координаты + центрирование
 function hexToPixel(col, row, rowLength, maxLength) {
-    const x = col * (HEX_W * 0.75);
-    const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0);
+    // базовые координаты flat‑top
+    const stepX = HEX_SIZE * 1.5; // горизонтальный шаг
+    const stepY = HEX_H;          // вертикальный шаг
 
-    const shift = ((maxLength - rowLength) * (HEX_W * 0.75)) / 2;
+    let x = col * stepX;
+    let y = row * stepY;
 
-    return {
-        x: x + shift + 20,
-        y: y + 20
-    };
+    // смещение чётных рядов вправо (odd-r / even-r — под твой вкус)
+    const offsetX = (row % 2 === 0) ? HEX_SIZE * 0.75 : 0;
+    x += offsetX;
+
+    // центрирование ряда относительно максимальной длины
+    const shift = ((maxLength - rowLength) * stepX) / 2;
+    x += shift;
+
+    // общий отступ от края канваса
+    x += 40;
+    y += 40;
+
+    return { x, y };
 }
 
+// рисуем один flat‑top гекс по центру (x, y)
 function drawHexAt(x, y, color, stroke = "#222", lineWidth = 1) {
+    const w = HEX_SIZE;
+    const h = HEX_H / 2;
+
     ctx.beginPath();
-    ctx.moveTo(x + HEX_SIZE, y);
-    ctx.lineTo(x + HEX_SIZE / 2, y + HEX_H / 2);
-    ctx.lineTo(x - HEX_SIZE / 2, y + HEX_H / 2);
-    ctx.lineTo(x - HEX_SIZE, y);
-    ctx.lineTo(x - HEX_SIZE / 2, y - HEX_H / 2);
-    ctx.lineTo(x + HEX_SIZE / 2, y - HEX_H / 2);
+    ctx.moveTo(x - w,     y);      // левая середина
+    ctx.lineTo(x - w / 2, y - h);  // левый верх
+    ctx.lineTo(x + w / 2, y - h);  // правый верх
+    ctx.lineTo(x + w,     y);      // правая середина
+    ctx.lineTo(x + w / 2, y + h);  // правый низ
+    ctx.lineTo(x - w / 2, y + h);  // левый низ
     ctx.closePath();
 
     ctx.fillStyle = color;
@@ -60,6 +77,7 @@ function drawHexAt(x, y, color, stroke = "#222", lineWidth = 1) {
 function renderPlanet() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // группируем по рядам
     rows = {};
     for (const cell of planetCells) {
         if (!rows[cell.row]) rows[cell.row] = [];
@@ -68,17 +86,18 @@ function renderPlanet() {
 
     maxLength = Math.max(...Object.values(rows).map(r => r.length));
 
-    for (const row of Object.keys(rows)) {
-        const rowCells = rows[row];
+    for (const rowKey of Object.keys(rows)) {
+        const rowCells = rows[rowKey];
         const rowLength = rowCells.length;
 
         for (const cell of rowCells) {
             const { x, y } = hexToPixel(cell.col, cell.row, rowLength, maxLength);
             const color = biomeColors[cell.biome] || "#ffffff";
 
-            const isHovered = hoveredCell &&
-                              hoveredCell.row === cell.row &&
-                              hoveredCell.col === cell.col;
+            const isHovered =
+                hoveredCell &&
+                hoveredCell.row === cell.row &&
+                hoveredCell.col === cell.col;
 
             if (isHovered) {
                 drawHexAt(x, y, color, "#ffffff", 3);
@@ -89,21 +108,27 @@ function renderPlanet() {
     }
 }
 
+// проверка попадания точки в flat‑top гекс
 function pointInHex(px, py, hx, hy) {
-    const dx = Math.abs(px - hx) / HEX_SIZE;
-    const dy = Math.abs(py - hy) / HEX_H;
+    const w = HEX_SIZE;
+    const h = HEX_H / 2;
 
-    return dy <= 0.5 && dx + dy <= 1;
+    const dx = Math.abs(px - hx);
+    const dy = Math.abs(py - hy);
+
+    if (dx > w || dy > h) return false;
+
+    // ромбовидная часть
+    return (h * w - h * dx - (w / 2) * dy) >= 0;
 }
 
 function findCellAt(x, y) {
-    for (const row of Object.keys(rows)) {
-        const rowCells = rows[row];
+    for (const rowKey of Object.keys(rows)) {
+        const rowCells = rows[rowKey];
         const rowLength = rowCells.length;
 
         for (const cell of rowCells) {
             const pos = hexToPixel(cell.col, cell.row, rowLength, maxLength);
-
             if (pointInHex(x, y, pos.x, pos.y)) {
                 return cell;
             }
@@ -119,7 +144,12 @@ canvas.addEventListener("mousemove", (e) => {
 
     const cell = findCellAt(x, y);
 
-    if (cell !== hoveredCell) {
+    if (
+        (!cell && hoveredCell) ||
+        (cell && (!hoveredCell ||
+                  cell.row !== hoveredCell.row ||
+                  cell.col !== hoveredCell.col))
+    ) {
         hoveredCell = cell;
         renderPlanet();
 
@@ -135,7 +165,8 @@ canvas.addEventListener("mousemove", (e) => {
 canvas.addEventListener("mouseleave", () => {
     hoveredCell = null;
     renderPlanet();
-    document.getElementById("info").textContent = "Клетка: —";
+    const info = document.getElementById("info");
+    if (info) info.textContent = "Клетка: —";
 });
 
 loadPlanet();
