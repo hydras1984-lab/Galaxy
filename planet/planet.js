@@ -31,17 +31,22 @@ async function loadPlanet() {
 // -----------------------------
 // Рисование одного гекса
 // -----------------------------
-function drawHex(x, y, color) {
-  const px = x * HEX_SIZE * 1.5 + 100;
-  const py = y * HEX_H + (x % 2 ? HEX_H / 2 : 0) + 100;
+function hexToPixel(col, row) {
+  const x = col * HEX_SIZE * 1.5 + 50;
+  const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + 50;
+  return { x, y };
+}
+
+function drawHex(col, row, color) {
+  const { x, y } = hexToPixel(col, row);
 
   ctx.beginPath();
-  ctx.moveTo(px + HEX_SIZE, py);
-  ctx.lineTo(px + HEX_SIZE / 2, py + HEX_H / 2);
-  ctx.lineTo(px - HEX_SIZE / 2, py + HEX_H / 2);
-  ctx.lineTo(px - HEX_SIZE, py);
-  ctx.lineTo(px - HEX_SIZE / 2, py - HEX_H / 2);
-  ctx.lineTo(px + HEX_SIZE / 2, py - HEX_H / 2);
+  ctx.moveTo(x + HEX_SIZE, y);
+  ctx.lineTo(x + HEX_SIZE / 2, y + HEX_H / 2);
+  ctx.lineTo(x - HEX_SIZE / 2, y + HEX_H / 2);
+  ctx.lineTo(x - HEX_SIZE, y);
+  ctx.lineTo(x - HEX_SIZE / 2, y - HEX_H / 2);
+  ctx.lineTo(x + HEX_SIZE / 2, y - HEX_H / 2);
   ctx.closePath();
 
   ctx.fillStyle = color;
