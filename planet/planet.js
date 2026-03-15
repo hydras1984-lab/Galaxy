@@ -9,10 +9,10 @@ const HEX_H = HEX_SIZE * 2;               // высота
 const HEX_W = Math.sqrt(3) * HEX_SIZE;    // ширина
 
 // Шаги между гексами
-const STEP_X = HEX_W * 0.75;              // горизонтальный шаг
-const STEP_Y = HEX_H * 0.5;               // вертикальный шаг
+const SPACING = 1.15; // увеличенный зазор между сотами
 
-const SPACING = 1.05; // небольшой зазор
+const STEP_X = HEX_W * 0.75 * SPACING;
+const STEP_Y = HEX_H * 0.5 * SPACING;
 
 let planetCells = [];
 let rows = {};
@@ -39,8 +39,8 @@ async function loadPlanet() {
 
 // pointy‑top + even‑r + центрирование
 function hexToPixel(col, row, rowLength, maxLength) {
-    let x = col * STEP_X * SPACING;
-    let y = row * STEP_Y * SPACING;
+    let x = col * STEP_X;
+    let y = row * STEP_Y;
 
     // even‑r: смещаются чётные ряды
     if (row % 2 === 0) {
