@@ -37,30 +37,8 @@ async function loadPlanet() {
     renderPlanet();
 }
 
-// pointy‑top + even‑r + центрирование
+// pointy‑top + even‑r + центрирование + смещение второго ряда
 function hexToPixel(col, row, rowLength, maxLength) {
-    let x = col * STEP_X;
-    let y = row * STEP_Y;
-
-    // even‑r: смещаются чётные ряды
-    if (row % 2 === 0) {
-        x += HEX_W * 0.5;
-    }
-
-    // центрирование ряда
-    const shift = ((maxLength - rowLength) * STEP_X) / 2;
-    x += shift;
-
-    // общий отступ
-    x += 40;
-    y += 40;
-
-    return { x, y };
-}
-
-// Рисуем настоящий pointy‑top гекс
-function hexToPixel(col, row, rowLength, maxLength) {
-    // базовые координаты
     let x = col * STEP_X;
     let y = row * STEP_Y;
 
@@ -78,15 +56,37 @@ function hexToPixel(col, row, rowLength, maxLength) {
     // центрирование ряда
     x += centerX - rowWidth / 2;
 
-    // дополнительное смещение второго ряда (row = 1)
+    // ключевой момент: смещение второго ряда (row = 1)
     if (row === 1) {
-        x -= HEX_W * 0.5; // на пол‑соты влево
+        x -= HEX_W * 0.5;   // на пол‑соты влево
     }
 
-    // общий отступ сверху
+    // общий вертикальный отступ
     y += 40;
 
     return { x, y };
+}
+
+// Рисуем настоящий pointy‑top гекс
+function drawHexAt(x, y, color, stroke = "#222", lineWidth = 1) {
+    const r = HEX_SIZE;
+    const w = HEX_W / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x,       y - r);     // верхняя вершина
+    ctx.lineTo(x + w,   y - r/2);
+    ctx.lineTo(x + w,   y + r/2);
+    ctx.lineTo(x,       y + r);     // нижняя вершина
+    ctx.lineTo(x - w,   y + r/2);
+    ctx.lineTo(x - w,   y - r/2);
+    ctx.closePath();
+
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = stroke;
+    ctx.stroke();
 }
 
 function renderPlanet() {
