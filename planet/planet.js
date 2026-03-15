@@ -1,11 +1,18 @@
 const canvas = document.getElementById("planetCanvas");
 const ctx = canvas.getContext("2d");
 
-const HEX_SIZE = 25;                         // радиус (от центра до вершины)
-const HEX_H = 2 * HEX_SIZE;                  // высота pointy‑top
-const HEX_W = Math.sqrt(3) * HEX_SIZE;       // ширина pointy‑top
+// Радиус гекса (от центра до вершины)
+const HEX_SIZE = 25;
 
-const SPACING = 1.05; // небольшой зазор между сотами
+// Геометрия pointy‑top
+const HEX_H = HEX_SIZE * 2;               // высота
+const HEX_W = Math.sqrt(3) * HEX_SIZE;    // ширина
+
+// Шаги между гексами
+const STEP_X = HEX_W * 0.75;              // горизонтальный шаг
+const STEP_Y = HEX_H * 0.5;               // вертикальный шаг
+
+const SPACING = 1.05; // небольшой зазор
 
 let planetCells = [];
 let rows = {};
@@ -32,11 +39,8 @@ async function loadPlanet() {
 
 // pointy‑top + even‑r + центрирование
 function hexToPixel(col, row, rowLength, maxLength) {
-    const stepX = HEX_W * 0.75 * SPACING; // горизонтальный шаг
-    const stepY = HEX_H * 0.5 * SPACING;  // вертикальный шаг (полвысоты)
-
-    let x = col * stepX;
-    let y = row * stepY;
+    let x = col * STEP_X * SPACING;
+    let y = row * STEP_Y * SPACING;
 
     // even‑r: смещаются чётные ряды
     if (row % 2 === 0) {
@@ -44,7 +48,7 @@ function hexToPixel(col, row, rowLength, maxLength) {
     }
 
     // центрирование ряда
-    const shift = ((maxLength - rowLength) * stepX) / 2;
+    const shift = ((maxLength - rowLength) * STEP_X * SPACING) / 2;
     x += shift;
 
     // общий отступ
@@ -56,17 +60,17 @@ function hexToPixel(col, row, rowLength, maxLength) {
 
 // Рисуем настоящий pointy‑top гекс
 function drawHexAt(x, y, color, stroke = "#222", lineWidth = 1) {
-    const r = HEX_SIZE; // радиус
-    const w = HEX_W;    // ширина
-    const h = HEX_H;    // высота
+    const r = HEX_SIZE;
+    const w = HEX_W / 2;
+    const h = HEX_H / 2;
 
     ctx.beginPath();
-    ctx.moveTo(x,         y - r);        // верх
-    ctx.lineTo(x + w/2,   y - r/2);      // верх‑право
-    ctx.lineTo(x + w/2,   y + r/2);      // низ‑право
-    ctx.lineTo(x,         y + r);        // низ
-    ctx.lineTo(x - w/2,   y + r/2);      // низ‑лево
-    ctx.lineTo(x - w/2,   y - r/2);      // верх‑лево
+    ctx.moveTo(x,       y - r);     // верхняя вершина
+    ctx.lineTo(x + w,   y - r/2);
+    ctx.lineTo(x + w,   y + r/2);
+    ctx.lineTo(x,       y + r);     // нижняя вершина
+    ctx.lineTo(x - w,   y + r/2);
+    ctx.lineTo(x - w,   y - r/2);
     ctx.closePath();
 
     ctx.fillStyle = color;
@@ -110,14 +114,13 @@ function renderPlanet() {
     }
 }
 
-// попадание в pointy‑top гекс (приближённо, но надёжно)
+// попадание в pointy‑top гекс
 function pointInHex(px, py, hx, hy) {
     const dx = Math.abs(px - hx);
     const dy = Math.abs(py - hy);
 
     if (dx > HEX_W / 2 || dy > HEX_H / 2) return false;
 
-    // ромбовидная аппроксимация
     return (dx / (HEX_W / 2) + dy / (HEX_H / 2)) <= 1;
 }
 
