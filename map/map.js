@@ -219,10 +219,14 @@ document.getElementById("startGame").onclick = () => {
     return;
   }
 
+  // Подсветка выбранной клетки
   highlightCell(cell.x, cell.y, 'rgba(255,0,0,0.5)');
 
-  document.getElementById('info').textContent =
-    `Стартовая клетка игрока: ${cell.x}x${cell.y}`;
+  // Переход на страницу гекс-планеты
+  // planetId = 1 — пока что у нас одна планета
+  setTimeout(() => {
+    location.href = `../planet/index.html?planet=1&startX=${cell.x}&startY=${cell.y}`;
+  }, 600);
 };
 
 // -----------------------------
