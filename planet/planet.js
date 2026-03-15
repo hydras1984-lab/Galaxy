@@ -1,7 +1,7 @@
 const canvas = document.getElementById("planetCanvas");
 const ctx = canvas.getContext("2d");
 
-const HEX_SIZE = 25;
+const HEX_W = HEX_SIZE * 2;
 const HEX_H = HEX_SIZE * Math.sqrt(3);
 
 let planetCells = [];
@@ -28,14 +28,14 @@ async function loadPlanet() {
 }
 
 function hexToPixel(col, row, rowLength, maxLength) {
-    const baseX = col * HEX_SIZE * 1.5;
-    const baseY = row * HEX_H + (row % 2 ? HEX_H / 2 : 0);
+    const x = col * (HEX_W * 0.75);
+    const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0);
 
-    const shift = ((maxLength - rowLength) * HEX_SIZE * 1.5) / 2;
+    const shift = ((maxLength - rowLength) * (HEX_W * 0.75)) / 2;
 
     return {
-        x: baseX + shift + 20,
-        y: baseY + 20
+        x: x + shift + 20,
+        y: y + 20
     };
 }
 
