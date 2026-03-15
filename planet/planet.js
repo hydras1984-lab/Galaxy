@@ -30,8 +30,8 @@ async function loadPlanet() {
 // Рисование одного гекса
 // -----------------------------
 function hexToPixel(col, row) {
-  const x = col * HEX_SIZE * 1.5 + 50;
-  const y = row * HEX_H + (row % 2 ? HEX_H / 2 : 0) + 50;
+  const x = col * HEX_SIZE * 1.5 + 10;
+  const y = row * HEX_H + (row % 2 === 1 ? HEX_H / 2 : 0) + 10;
   return { x, y };
 }
 
