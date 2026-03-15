@@ -225,7 +225,7 @@ document.getElementById("startGame").onclick = () => {
   // Переход на страницу гекс-планеты
   // planetId = 1 — пока что у нас одна планета
   setTimeout(() => {
-    location.href = `../planet/index.html?planet=1&startX=${cell.x}&startY=${cell.y}`;
+    location.href = `../planet/index.html?planet=1`;
   }, 600);
 };
 
