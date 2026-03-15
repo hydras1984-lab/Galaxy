@@ -61,9 +61,6 @@ function renderPlanet(cells) {
     drawHex(cell.col, cell.row, color);
   }
 
-  // Подсветка стартовой клетки
-  drawHex(startX, startY, "rgba(255,0,0,0.6)");
-
   document.getElementById("info").textContent =
     `Стартовая клетка: ${startX}x${startY}`;
 }
