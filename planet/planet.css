@@ -1,0 +1,23 @@
+body {
+  background: #0a0a15;
+  color: #eee;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.title {
+  margin-top: 20px;
+  font-size: 28px;
+  text-shadow: 0 0 10px #6af;
+}
+
+#planetCanvas {
+  margin-top: 20px;
+  background: #111;
+  border: 2px solid #444;
+}
+
+#info {
+  margin-top: 15px;
+  font-size: 20px;
+}
