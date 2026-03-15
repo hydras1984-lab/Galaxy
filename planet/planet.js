@@ -3,8 +3,6 @@
 // -----------------------------
 const params = new URLSearchParams(location.search);
 const planetId = params.get("planet") || 1;
-const startX = Number(params.get("startX"));
-const startY = Number(params.get("startY"));
 
 const canvas = document.getElementById("planetCanvas");
 const ctx = canvas.getContext("2d");
@@ -66,8 +64,7 @@ function renderPlanet(cells) {
     drawHex(cell.col, cell.row, color);
   }
 
-  document.getElementById("info").textContent =
-    `Стартовая клетка: ${startX}x${startY}`;
+  document.getElementById("info").textContent = "Карта загружена";
 }
 
 // -----------------------------
