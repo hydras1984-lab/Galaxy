@@ -29,23 +29,21 @@ async function loadPlanet() {
 }
 
 // flat‑top координаты + центрирование
+const SPACING = 1.15; // расстояние между гексами
+
 function hexToPixel(col, row, rowLength, maxLength) {
-    // базовые координаты flat‑top
-    const stepX = HEX_SIZE * 1.5; // горизонтальный шаг
-    const stepY = HEX_H;          // вертикальный шаг
+    const stepX = HEX_SIZE * 1.5 * SPACING;
+    const stepY = HEX_H * SPACING;
 
     let x = col * stepX;
     let y = row * stepY;
 
-    // смещение чётных рядов вправо (odd-r / even-r — под твой вкус)
-    const offsetX = (row % 2 === 0) ? HEX_SIZE * 0.75 : 0;
+    const offsetX = (row % 2 === 0) ? HEX_SIZE * 0.75 * SPACING : 0;
     x += offsetX;
 
-    // центрирование ряда относительно максимальной длины
     const shift = ((maxLength - rowLength) * stepX) / 2;
     x += shift;
 
-    // общий отступ от края канваса
     x += 40;
     y += 40;
 
