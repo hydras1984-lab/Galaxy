@@ -31,7 +31,7 @@ async function loadPlanet() {
 // -----------------------------
 function hexToPixel(col, row) {
   const x = col * HEX_SIZE * 1.5 + 50;
-  const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + 50;
+  const y = row * HEX_H + (row % 2 ? HEX_H / 2 : 0) + 50;
   return { x, y };
 }
 
