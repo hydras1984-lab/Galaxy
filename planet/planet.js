@@ -59,26 +59,34 @@ function hexToPixel(col, row, rowLength, maxLength) {
 }
 
 // Рисуем настоящий pointy‑top гекс
-function drawHexAt(x, y, color, stroke = "#222", lineWidth = 1) {
-    const r = HEX_SIZE;
-    const w = HEX_W / 2;
-    const h = HEX_H / 2;
+function hexToPixel(col, row, rowLength, maxLength) {
+    // базовые координаты
+    let x = col * STEP_X;
+    let y = row * STEP_Y;
 
-    ctx.beginPath();
-    ctx.moveTo(x,       y - r);     // верхняя вершина
-    ctx.lineTo(x + w,   y - r/2);
-    ctx.lineTo(x + w,   y + r/2);
-    ctx.lineTo(x,       y + r);     // нижняя вершина
-    ctx.lineTo(x - w,   y + r/2);
-    ctx.lineTo(x - w,   y - r/2);
-    ctx.closePath();
+    // even‑r: смещаются чётные ряды
+    if (row % 2 === 0) {
+        x += HEX_W * 0.5;
+    }
 
-    ctx.fillStyle = color;
-    ctx.fill();
+    // ширина текущего ряда
+    const rowWidth = (rowLength - 1) * STEP_X + HEX_W;
 
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = stroke;
-    ctx.stroke();
+    // центр канваса
+    const centerX = canvas.width / 2;
+
+    // центрирование ряда
+    x += centerX - rowWidth / 2;
+
+    // дополнительное смещение второго ряда (row = 1)
+    if (row === 1) {
+        x -= HEX_W * 0.5; // на пол‑соты влево
+    }
+
+    // общий отступ сверху
+    y += 40;
+
+    return { x, y };
 }
 
 function renderPlanet() {
